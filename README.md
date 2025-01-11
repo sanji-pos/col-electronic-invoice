@@ -1,19 +1,27 @@
-# Proyecto XYZ
+# Proyecto facturacion-electronica-colombia
 
-Este proyecto XYZ es una aplicación web desarrollada en Python utilizando el framework FastAPI. Proporciona una API para gestionar usuarios y facturas.
+Este proyecto facturacion-electronica-colombia es una aplicación web desarrollada en Python utilizando el framework FastAPI. Proporciona una API para enviar facturas, notas crédito y prontamente notas débito a la DIAN en Colombia.
+
+Actualmente está operando en ambiente de habilitación. Para más detalles acerca de cómo correr y depurar el proyecto, puedes consultar este video de YouTube:
+
+[Facturación electrónica DIAN COLOMBIA software propio - API GRATIS](https://youtu.be/EaDoYikq-DI?si=W-lIRWI1gwBewll2)
+
+En caso tal de necesitar ayuda me pueden contactar al WhatsApp +57 300 812 0524
+
+---
 
 ## Instalación
 
 1. Clona el repositorio desde GitHub:
 
     ```bash
-    git clone https://github.com/tu_usuario/proyecto-xyz.git
+    git clone https://github.com/Crispancho93/facturacion-electronica-colombia.git
     ```
 
 2. Accede al directorio del proyecto:
 
     ```bash
-    cd proyecto-xyz
+    cd facturacion-electronica-colombia
     ```
 
 3. Crea un entorno virtual e instala las dependencias:
@@ -54,4 +62,10 @@ Este proyecto XYZ es una aplicación web desarrollada en Python utilizando el fr
 ## Estructura del Proyecto
 
 ## Pendiente por validar
-1. Validar campo IndustryClasificationCode - Codido de actividad que registra en el RUT
+1. Validar campo IndustryClasificationCode - Código de actividad que registra en el RUT
+
+---
+
+## Licencia
+
+Este proyecto está licenciado bajo la misma licencia de código abierto que el kernel de Linux: [Licencia GPLv2](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html). Esto significa que puedes usar, modificar y distribuir el software bajo los términos de la licencia.
