@@ -268,6 +268,35 @@ class Company:
         )
         self._LegalCompanyID = value
 
+    # tabla 13.2.1 Documento de identificación (Tipo de Identificador Fiscal)
+    @property
+    def LegalDocumentType(self):
+        return self._LegalDocumentType
+
+    @LegalDocumentType.setter
+    def LegalDocumentType(self, value):
+        self.set_scheme(
+            {'cac': self.names['cac'], 'cbc': self.names['cbc']}, 
+            f'{self._PartyLegalEntity}/cbc:CompanyID', 
+            'schemeName',
+            value
+        )
+        self._LegalDocumentType = value
+
+    @property
+    def LegalVerificationDigit(self):
+        return self._LegalVerificationDigit
+
+    @LegalVerificationDigit.setter
+    def LegalVerificationDigit(self, value):
+        self.set_scheme(
+            {'cac': self.names['cac'], 'cbc': self.names['cbc']}, 
+            f'{self._PartyLegalEntity}/cbc:CompanyID', 
+            'schemeID',
+            value
+        )
+        self._LegalVerificationDigit = value
+
     @property
     def LegalCorporateID(self):
         return self._LegalCorporateID

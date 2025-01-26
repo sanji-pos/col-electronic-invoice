@@ -4,7 +4,7 @@ from shared import Config, generic
 from domain.xml_models import CreditNoteXml
 from domain.dtos import ControlNotaDto, CreditNoteDto
 from ..sign_docs.xml_signerv3 import XmlSignerV3
-from .soap_request import SoapRequest
+from ..soap.soap_invoice import SoapRequest
 
 _config = Config()
 
@@ -58,7 +58,7 @@ class CreateNoteCase:
         zip_invoice = generic.zip_document(signed_invoice, f'{self.xml_name}.xml')
 
         # Enviar la Factura
-        result = self.soap.create_soap_request(zip_invoice)
+        result = self.soap.send_xml(zip_invoice)
 
         # Guardar .zip en un segundo plano
         args = (zip_invoice, f'{self.xml_full_path}.zip')

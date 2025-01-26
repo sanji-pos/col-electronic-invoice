@@ -4,7 +4,7 @@ import requests
 from lxml import etree
 from datetime import datetime, timedelta, timezone
 
-from shared import generic, certificate_loader, templates_loader
+from shared import certificate_loader, templates_loader
 
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import serialization
@@ -90,8 +90,7 @@ class SoapRequest:
         created_element.text = created_str
         expires_element.text = expires_str
 
-
-    def create_soap_request(self, base64_file):
+    def _prepare_xml(self, base64_file):
         binary_security_token = self._get_binary_security_token()
         
         # Encuentra el elemento wsse:BinarySecurityToken y reemplaza su valor
@@ -113,57 +112,21 @@ class SoapRequest:
         content_file_element.text = base64_file
         
         xml_request = etree.tostring(self.root, pretty_print=True).decode('utf-8')
-        result = self._send_soap_request(xml_request)
-
-        return result
+        return xml_request
         
     def _send_soap_request(self, xml_request):
         url = 'https://vpfe-hab.dian.gov.co/WcfDianCustomerServices.svc'
         headers = {
             'Content-Type': 'application/soap+xml; charset=utf-8',
-            'SOAPAction': 'http://wcf.dian.colombia/IWcfDianCustomerServices/SendBillSync'
+            'SOAPAction': f'http://wcf.dian.colombia/IWcfDianCustomerServices/SendBillSync'
         }
 
-        try:
-            response = requests.post(url, data=xml_request, headers=headers)
-            response.raise_for_status()
+        response = requests.post(url, data=xml_request, headers=headers)
+        response.raise_for_status()
 
-            is_valid, error_messages = self._extract_error_messages(response.text)
-
-            if is_valid == 'false':
-                print(f"Error al enviar la factura. XML enviado: {xml_request}")
-                print(f"Error al enviar la factura. Respuesta XML: {response.text}")
-                raise Exception(error_messages)
-            
-            return error_messages
-            
-        except Exception as e:
-            print(f"Error al enviar la factura. XML enviado: {xml_request}")
-            print(f"Error al enviar la factura. Respuesta XML: {str(e)}")
-            raise Exception(str(e))
+        return response
         
-    
-    def _extract_error_messages(self, xml_string):
-        tree = etree.fromstring(xml_string)
-        namespaces = {
-            's': 'http://www.w3.org/2003/05/soap-envelope',
-            'a': 'http://www.w3.org/2005/08/addressing',
-            'u': 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd',
-            'b': 'http://schemas.datacontract.org/2004/07/DianResponse',
-            'c': 'http://schemas.microsoft.com/2003/10/Serialization/Arrays'
-        }
-        
-        error_elements = tree.findall('.//c:string', namespaces)
-        error_messages = [element.text for element in error_elements]
-
-        namespaces = { 
-            's': 'http://www.w3.org/2003/05/soap-envelope', 
-            'a': 'http://www.w3.org/2005/08/addressing', 
-            'u': 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd', 
-            'b': 'http://schemas.datacontract.org/2004/07/DianResponse' 
-        } 
-
-        is_valid = tree.find('.//b:IsValid', namespaces).text
-        
-        return (is_valid, error_messages)
+    def send_xml(self, base64_file):
+        xml_request = self._prepare_xml(base64_file)
+        return self._send_soap_request(xml_request)
 

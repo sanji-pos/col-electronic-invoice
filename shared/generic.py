@@ -162,3 +162,27 @@ def zip_document(invoice_xml, name_invoice):
     base64_encoded = base64.b64encode(zip_bytes).decode('utf-8')
     
     return base64_encoded
+
+def extract_errors_invoice(xml_response):
+        tree = etree.fromstring(xml_response)
+        namespaces = {
+            's': 'http://www.w3.org/2003/05/soap-envelope',
+            'a': 'http://www.w3.org/2005/08/addressing',
+            'u': 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd',
+            'b': 'http://schemas.datacontract.org/2004/07/DianResponse',
+            'c': 'http://schemas.microsoft.com/2003/10/Serialization/Arrays'
+        }
+        
+        error_elements = tree.findall('.//c:string', namespaces)
+        error_messages = [element.text for element in error_elements]
+
+        namespaces = { 
+            's': 'http://www.w3.org/2003/05/soap-envelope', 
+            'a': 'http://www.w3.org/2005/08/addressing', 
+            'u': 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd', 
+            'b': 'http://schemas.datacontract.org/2004/07/DianResponse' 
+        } 
+
+        is_valid = tree.find('.//b:IsValid', namespaces).text
+        
+        return (is_valid, error_messages)

@@ -9,6 +9,7 @@ class ControlDto(BaseModel):
     Prefix: str
     From: str
     To: str
+    TestID: str
     ProviderID: str
     SoftwareID: str
     ProfileExecutionID: str

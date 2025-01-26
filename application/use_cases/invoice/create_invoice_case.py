@@ -4,7 +4,8 @@ from shared import Config, generic
 from domain.xml_models import InvoiceXml
 from domain.dtos import ControlDto, InvoiceDto
 from ..sign_docs.xml_signerv3 import XmlSignerV3
-from .soap_request import SoapRequest
+from ..soap.soap_invoice import SoapRequest
+from ..soap.soap_test import SoapRequestTest
 
 _config = Config()
 
@@ -12,10 +13,14 @@ class CreateInvoiceCase:
     def __init__(self, invoice: InvoiceDto):
         self.invoice = invoice
         self.xml = InvoiceXml()
-        self.xml_name = f'FV{self.invoice.ID}'
-        self.xml_full_path = os.path.join(_config.PATH_BASE, self.invoice.Control.InvoiceAuthorization, 'XMLFacturas', self.xml_name)
-        self.soap = SoapRequest()
-    
+        self.soap_invoice = SoapRequest()
+        self.soap_test = SoapRequestTest(invoice.Control.TestID)
+
+        self.xml_name = f'FV{self.invoice.ID}.xml'
+        self.zip_name = f'FV{self.invoice.ID}.zip'
+
+        self.zip_full_path = os.path.join(_config.PATH_BASE, self.invoice.Control.InvoiceAuthorization, 'XMLFacturas', self.zip_name)
+
     @property
     def cufe(self):
         data = {
@@ -40,7 +45,7 @@ class CreateInvoiceCase:
         }
         return self.xml.get_cufe(data)
 
-    def start(self):
+    def _create(self):
         # Llenar el xml de la factura con todos los datos
         self._set_control(self.invoice.Control)
         self._set_company()
@@ -53,20 +58,57 @@ class CreateInvoiceCase:
         # Firmar Factura
         self.signer = XmlSignerV3(self.xml.get_root, self.invoice, 'FV')
         signed_invoice = self.signer.sign()
+        
+        return signed_invoice
+ 
+    def send(self):
+        signed_invoice = self._create()
 
         # Comprimir Factura
-        zip_invoice = generic.zip_document(signed_invoice, f'{self.xml_name}.xml')
-
-        # Enviar la Factura
-        result = self.soap.create_soap_request(zip_invoice)
+        zip_invoice = generic.zip_document(signed_invoice, self.xml_name)
 
         # Guardar .zip en un segundo plano
-        args = (zip_invoice, f'{self.xml_full_path}.zip')
+        args = (zip_invoice, self.zip_full_path)
         thread = threading.Thread(target=generic.write_file_from_base64, args=args)
         thread.start()
 
-        return result
-    
+        # Enviar la Factura
+        try:
+            response = self.soap_invoice.send_xml(zip_invoice)
+            is_valid, messages = generic.extract_errors_invoice(response.text)
+
+            if is_valid == 'false':
+                print(f"Error al enviar la factura. XML enviado: {self.xml_name}")
+                print(f"Error al enviar la factura. Respuesta XML: {response.text}")
+                raise Exception(messages)
+            
+        except Exception as e:
+            print(f"Error al enviar la factura. XML enviado: {self.xml_name}")
+            print(f"Error al enviar la factura. Respuesta XML: {e}")
+            raise Exception(e)
+        
+        return messages
+
+    def send_test(self):
+        signed_invoice = self._create()
+
+        # Comprimir Factura
+        zip_invoice = generic.zip_document(signed_invoice, self.xml_name)
+
+        # Guardar .zip en un segundo plano
+        args = (zip_invoice, self.zip_full_path)
+        thread = threading.Thread(target=generic.write_file_from_base64, args=args)
+        thread.start()
+
+        # Enviar la Factura
+        try:
+            response = self.soap_test.send_xml(zip_invoice)
+            return { "status": response.status_code, "text": response.text }
+        except Exception as e:
+            print(f"Error al enviar la factura. XML enviado: {self.xml_name}")
+            print(f"Error al enviar la factura. Respuesta XML: {e}")
+            raise Exception(e)
+
     def _set_customer(self):
         self.xml.Customer.AdditionalAccountID = self.invoice.Customer.AdditionalAccountID
         self.xml.Customer.PartyName = self.invoice.Customer.PartyName
@@ -115,6 +157,8 @@ class CreateInvoiceCase:
 
         self.xml.Company.LegalRegistrationName = self.invoice.Company.PartyName
         self.xml.Company.LegalCompanyID = self.invoice.Company.CompanyID
+        self.xml.Company.LegalDocumentType = self.invoice.Company.DocumentType
+        self.xml.Company.LegalVerificationDigit = self.invoice.Company.VerificationDigit
 
         self.xml.Company.CorporateRegistrationID = self.invoice.Control.Prefix
     

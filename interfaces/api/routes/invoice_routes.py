@@ -11,7 +11,15 @@ router = APIRouter(
 def create(request: InvoiceDto):
     try:
         create_invoice = CreateInvoiceCase(request)
-        return create_invoice.start()
+        return create_invoice.send()
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al crear la factura: " + str(e))
+    
+@router.post("/send_test")
+def create(request: InvoiceDto):
+    try:
+        create_invoice = CreateInvoiceCase(request)
+        return create_invoice.send_test()
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al crear la factura: " + str(e))
 
