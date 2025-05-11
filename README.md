@@ -23,12 +23,16 @@ En caso tal de necesitar ayuda me pueden contactar al WhatsApp +57 300 812 0524
     ```bash
     cd facturacion-electronica-colombia
     ```
-
+3. Instala python 3.10
+    ```bash
+    brew install python@3.10
+    ```
 3. Crea un entorno virtual e instala las dependencias:
 
     ```bash
     python -m venv venv
-    source venv/bin/activate    # Linux / macOS
+    python3.10 -m venv venv     # macOS
+    source venv/bin/activate    # Linux
     .\venv\Scripts\activate     # Windows
     pip install -r requirements.txt
     ```
