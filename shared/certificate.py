@@ -21,7 +21,6 @@ class CertificateLoader:
         self._sign_path = os.path.join(_config.PATH_BASE, 'certificados', _config.SIGN_NAME)
         self._sign_password =  sign_password
         self._security = None
-        self._politica_path = os.path.join(_config.PATH_BASE, 'certificados', _config.POLITICA_NAME)
         
         self.load()
 
@@ -40,7 +39,6 @@ class CertificateLoader:
             'emisor': additional_certs[0],
             'ca_raiz': additional_certs[1],
             'politica_file': ''
-            # 'politica_file': generic.read_file(path=self._politica_path, mode='rb')
         }
 
         self._security = CertificateData(**data)
