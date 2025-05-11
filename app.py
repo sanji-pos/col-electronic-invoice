@@ -6,14 +6,10 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from interfaces.api import invoice_routes
-from shared import certificate_loader, templates_loader
+from shared import templates_loader
 
 logging.basicConfig(level=logging.INFO)
 _logger = logging.getLogger("fastapi_app")
-
-async def load_certificate():
-    certificate_loader.load()
-    _logger.info("Certificados cargados.")
 
 async def load_templates():
     templates_loader.load()
@@ -21,7 +17,7 @@ async def load_templates():
 
 async def loads():
     """Ejecuta las cargas en paralelo."""
-    await asyncio.gather(load_certificate(), load_templates())
+    await asyncio.gather(load_templates())
     _logger.info("Todas las tareas de carga completadas.")
 
 @asynccontextmanager

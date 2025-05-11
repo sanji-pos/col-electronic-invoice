@@ -17,11 +17,13 @@ class CertificateData(NamedTuple):
     politica_file: object
 
 class CertificateLoader:
-    def __init__(self):
+    def __init__(self, sign_password):
         self._sign_path = os.path.join(_config.PATH_BASE, 'certificados', _config.SIGN_NAME)
-        self._sign_password =  _config.SIGN_PASSWORD
+        self._sign_password =  sign_password
         self._security = None
         self._politica_path = os.path.join(_config.PATH_BASE, 'certificados', _config.POLITICA_NAME)
+        
+        self.load()
 
     def load(self):
         with open(self._sign_path, 'rb') as pfx_file:
@@ -48,5 +50,3 @@ class CertificateLoader:
         if not self._security:
             raise ValueError("Certificate data has not been loaded.")
         return self._security
-    
-certificate_loader = CertificateLoader()

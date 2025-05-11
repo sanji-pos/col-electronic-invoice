@@ -6,20 +6,22 @@ from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.x509 import load_der_x509_certificate
 
-from shared import certificate_loader
+from shared.certificate import CertificateLoader
+
 from .template_xades import TemplateXades
 
 class XmlSignerV3:
-    def __init__(self, invoice_xml, invoice_dto, document_type):
-            self.firmante = certificate_loader.security.firmante.public_bytes(serialization.Encoding.DER)
-            self.emisor = certificate_loader.security.emisor.public_bytes(serialization.Encoding.DER)
-            self.ca_raiz = certificate_loader.security.ca_raiz.public_bytes(serialization.Encoding.DER)
-            self.private_key = certificate_loader.security.private_key
-            self.politica_file = certificate_loader.security.politica_file
+    def __init__(self, invoice_xml, invoice_dto, document_type, sign_password):
+        certificate_loader = CertificateLoader(sign_password=sign_password)
+        self.firmante = certificate_loader.security.firmante.public_bytes(serialization.Encoding.DER)
+        self.emisor = certificate_loader.security.emisor.public_bytes(serialization.Encoding.DER)
+        self.ca_raiz = certificate_loader.security.ca_raiz.public_bytes(serialization.Encoding.DER)
+        self.private_key = certificate_loader.security.private_key
+        self.politica_file = certificate_loader.security.politica_file
 
-            self.invoice_root = invoice_xml
-            self.invoice_dto = invoice_dto
-            self.document_type = document_type
+        self.invoice_root = invoice_xml
+        self.invoice_dto = invoice_dto
+        self.document_type = document_type
     
     def _get_with_schemas(self, input_data):
         if isinstance(input_data, bytes):

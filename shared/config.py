@@ -3,7 +3,6 @@ from pydantic_settings import BaseSettings
 
 class Config(BaseSettings):
     PATH_BASE: str
-    SIGN_PASSWORD: str
     SIGN_NAME: str
     POLITICA_NAME: str
     class Config:

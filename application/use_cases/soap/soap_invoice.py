@@ -4,14 +4,16 @@ import requests
 from lxml import etree
 from datetime import datetime, timedelta, timezone
 
-from shared import certificate_loader, templates_loader
+from shared import templates_loader
+from shared.certificate import CertificateLoader
 
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives import hashes
 
 class SoapRequest:
-    def __init__(self):
+    def __init__(self, sign_password):
+        certificate_loader = CertificateLoader(sign_password=sign_password)
         self.certificate = certificate_loader.security.firmante
         self.private_key = certificate_loader.security.private_key
         self.root = etree.fromstring(templates_loader.template.xml_request)

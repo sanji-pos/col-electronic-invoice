@@ -10,7 +10,8 @@ router = APIRouter(
 @router.post("/create_invoice")
 def create(request: InvoiceDto):
     try:
-        create_invoice = CreateInvoiceCase(request)
+        sign_password="RNrFHxrwSu"
+        create_invoice = CreateInvoiceCase(request, sign_password)
         return create_invoice.send()
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al crear la factura: " + str(e))
@@ -18,7 +19,8 @@ def create(request: InvoiceDto):
 @router.post("/send_test")
 def create(request: InvoiceDto):
     try:
-        create_invoice = CreateInvoiceCase(request)
+        sign_password="RNrFHxrwSu"
+        create_invoice = CreateInvoiceCase(request, sign_password)
         return create_invoice.send_test()
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al crear la factura: " + str(e))
@@ -26,7 +28,8 @@ def create(request: InvoiceDto):
 @router.post("/create_credit_note")
 def create(request: CreditNoteDto):
     try:
-        create_note = CreateNoteCase(request)
+        sign_password="RNrFHxrwSu"
+        create_note = CreateNoteCase(request, sign_password)
         return create_note.start()
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al crear la factura: " + str(e))

@@ -10,11 +10,12 @@ from ..soap.soap_test import SoapRequestTest
 _config = Config()
 
 class CreateInvoiceCase:
-    def __init__(self, invoice: InvoiceDto):
+    def __init__(self, invoice: InvoiceDto, sign_password):
         self.invoice = invoice
         self.xml = InvoiceXml()
-        self.soap_invoice = SoapRequest()
-        self.soap_test = SoapRequestTest(invoice.Control.TestID)
+        self.soap_invoice = SoapRequest(sign_password)
+        self.soap_test = SoapRequestTest(invoice.Control.TestID, sign_password)
+        self.sign_password = sign_password
 
         self.xml_name = f'FV{self.invoice.ID}.xml'
         self.zip_name = f'FV{self.invoice.ID}.zip'
@@ -56,7 +57,7 @@ class CreateInvoiceCase:
         self._set_lines()
 
         # Firmar Factura
-        self.signer = XmlSignerV3(self.xml.get_root, self.invoice, 'FV')
+        self.signer = XmlSignerV3(self.xml.get_root, self.invoice, 'FV', self.sign_password)
         signed_invoice = self.signer.sign()
         
         return signed_invoice
