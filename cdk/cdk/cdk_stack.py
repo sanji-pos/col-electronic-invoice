@@ -13,7 +13,6 @@ class ColElectronicInvoiceStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # 1. Your Lambdas
         create_invoice_fn = PythonFunction(
             self, "CreateInvoiceLambda",
             entry="./lambda/create_invoice",
@@ -30,15 +29,12 @@ class ColElectronicInvoiceStack(Stack):
             handler="handle"
         )
 
-        # 2. Import the existing API URL & extract its API ID
         api_id = Fn.import_value("sls-sanji-pos-server-prod-HttpApiId")
 
-        # 3. Import the Lambda-authorizer ARN
         authorizer_arn = Fn.import_value(
             "sls-sanji-pos-server-prod-ValidateGatewayTokenAuthorizerLambdaFunctionQualifiedArn"
         )
 
-        # 4. Define a CfnAuthorizer
         authorizer = CfnAuthorizer(
             self, "TokenAuthorizer",
             api_id=api_id,
@@ -49,12 +45,11 @@ class ColElectronicInvoiceStack(Stack):
                 f"arn:aws:apigateway:{self.region}:lambda:"
                 f"path/2015-03-31/functions/{authorizer_arn}/invocations"
             ),
-            authorizer_payload_format_version="2.0"
+            authorizer_payload_format_version="2.0",
+            authorizer_result_ttl_in_seconds=3600
         )
 
-        # 5. Helper to add a route + integration + permissions
         def add_route(path: str, method: str, fn: PythonFunction, id_prefix: str):
-            # 5a. Integration
             integration = CfnIntegration(
                 self, f"{id_prefix}Integration",
                 api_id=api_id,
@@ -64,7 +59,6 @@ class ColElectronicInvoiceStack(Stack):
                 payload_format_version="2.0",
             )
 
-            # 5b. Grant API Gateway permission to invoke the Lambda
             fn.add_permission(
                 f"{id_prefix}InvokePermission",
                 principal=iam.ServicePrincipal("apigateway.amazonaws.com"),
@@ -75,16 +69,14 @@ class ColElectronicInvoiceStack(Stack):
                 )
             )
 
-            # 5c. Route
             CfnRoute(
                 self, f"{id_prefix}Route",
                 api_id=api_id,
                 route_key=f"{method} {path}",
                 target=f"integrations/{integration.ref}",
                 authorization_type="CUSTOM",
-                authorizer_id=authorizer.ref
+                authorizer_id=authorizer.ref,
             )
 
-        # 6. Wire up your two endpoints
         add_route("/new-invoice", "POST", create_invoice_fn, "CreateInvoice")
         add_route("/new-send-test", "POST", send_test_fn, "SendTest")
