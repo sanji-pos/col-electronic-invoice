@@ -11,8 +11,8 @@ from shared.certificate import CertificateLoader
 from .template_xades import TemplateXades
 
 class XmlSignerV3:
-    def __init__(self, invoice_xml, invoice_dto, document_type, sign_password):
-        certificate_loader = CertificateLoader(sign_password=sign_password)
+    def __init__(self, invoice_xml, invoice_dto, document_type, sign_password, sign_file_b64):
+        certificate_loader = CertificateLoader(sign_password, sign_file_b64)
         self.firmante = certificate_loader.security.firmante.public_bytes(serialization.Encoding.DER)
         self.emisor = certificate_loader.security.emisor.public_bytes(serialization.Encoding.DER)
         self.ca_raiz = certificate_loader.security.ca_raiz.public_bytes(serialization.Encoding.DER)

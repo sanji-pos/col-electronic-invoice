@@ -12,8 +12,8 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives import hashes
 
 class SoapRequest:
-    def __init__(self, sign_password):
-        certificate_loader = CertificateLoader(sign_password=sign_password)
+    def __init__(self, sign_password, sign_file_b64):
+        certificate_loader = CertificateLoader(sign_password, sign_file_b64)
         self.certificate = certificate_loader.security.firmante
         self.private_key = certificate_loader.security.private_key
         self.root = etree.fromstring(templates_loader.template.xml_request)

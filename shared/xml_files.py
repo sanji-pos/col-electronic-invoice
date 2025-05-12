@@ -10,6 +10,7 @@ class XmlTemplatesData(NamedTuple):
 class XmlLoader:
     def __init__(self):
         self._template = None
+        self.load()
 
     def load(self):
         data = {

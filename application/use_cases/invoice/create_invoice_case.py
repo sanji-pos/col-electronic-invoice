@@ -1,4 +1,5 @@
 import os
+import tempfile
 import threading
 from shared import Config, generic
 from domain.xml_models import InvoiceXml
@@ -10,18 +11,19 @@ from ..soap.soap_test import SoapRequestTest
 _config = Config()
 
 class CreateInvoiceCase:
-    def __init__(self, invoice: InvoiceDto, sign_password):
+    def __init__(self, invoice: InvoiceDto, sign_password, sign_file_b64):
         self.invoice = invoice
         self.xml = InvoiceXml()
-        self.soap_invoice = SoapRequest(sign_password)
-        self.soap_test = SoapRequestTest(invoice.Control.TestID, sign_password)
+        self.soap_invoice = SoapRequest(sign_password, sign_file_b64)
+        self.soap_test = SoapRequestTest(invoice.Control.TestID, sign_password, sign_file_b64)
         self.sign_password = sign_password
+        self.sign_file_b64 = sign_file_b64
 
         self.xml_name = f'FV{self.invoice.ID}.xml'
         self.zip_name = f'FV{self.invoice.ID}.zip'
 
-        self.zip_full_path = os.path.join(_config.PATH_BASE, self.invoice.Control.InvoiceAuthorization, 'XMLFacturas', self.zip_name)
-
+        self.zip_full_path = os.path.join(tempfile.gettempdir(), self.invoice.Control.InvoiceAuthorization, 'XMLFacturas', self.zip_name)
+        os.makedirs(os.path.dirname(self.zip_full_path), exist_ok=True)
     @property
     def cufe(self):
         data = {
@@ -57,7 +59,7 @@ class CreateInvoiceCase:
         self._set_lines()
 
         # Firmar Factura
-        self.signer = XmlSignerV3(self.xml.get_root, self.invoice, 'FV', self.sign_password)
+        self.signer = XmlSignerV3(self.xml.get_root, self.invoice, 'FV', self.sign_password, self.sign_file_b64)
         signed_invoice = self.signer.sign()
         
         return signed_invoice
@@ -82,6 +84,9 @@ class CreateInvoiceCase:
                 print(f"Error al enviar la factura. XML enviado: {self.xml_name}")
                 print(f"Error al enviar la factura. Respuesta XML: {response.text}")
                 raise Exception(messages)
+            return {
+                "cufe": self.cufe
+            }
             
         except Exception as e:
             print(f"Error al enviar la factura. XML enviado: {self.xml_name}")

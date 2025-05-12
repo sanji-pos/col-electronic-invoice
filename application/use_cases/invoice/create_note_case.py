@@ -1,5 +1,7 @@
 import os
 import threading
+import tempfile
+
 from shared import Config, generic
 from domain.xml_models import CreditNoteXml
 from domain.dtos import ControlNotaDto, CreditNoteDto
@@ -9,13 +11,15 @@ from ..soap.soap_invoice import SoapRequest
 _config = Config()
 
 class CreateNoteCase:
-    def __init__(self, credit_note: CreditNoteDto, sign_password):
+    def __init__(self, credit_note: CreditNoteDto, sign_password, sign_file_b64):
         self.credit_note = credit_note
         self.xml = CreditNoteXml()
         self.xml_name = f'{self.credit_note.ID}'
-        self.xml_full_path = os.path.join(_config.PATH_BASE, self.credit_note.Control.InvoiceAuthorization, 'XMLNotas', self.xml_name)
-        self.soap = SoapRequest(sign_password)
+        self.xml_full_path = os.path.join(tempfile.gettempdir(), self.credit_note.Control.InvoiceAuthorization, 'XMLNotas', self.xml_name)
+        self.soap = SoapRequest(sign_password, sign_file_b64)
         self.sign_password = sign_password
+        self.sign_file_b64 = sign_file_b64
+        os.makedirs(os.path.dirname(self.xml_full_path), exist_ok=True)
     
     @property
     def cude(self):
@@ -52,7 +56,7 @@ class CreateNoteCase:
         self._set_lines()
         
         # Firmar Factura
-        self.signer = XmlSignerV3(self.xml.get_root, self.credit_note, 'NC', self.sign_password)
+        self.signer = XmlSignerV3(self.xml.get_root, self.credit_note, 'NC', self.sign_password, self.sign_file_b64)
         signed_invoice = self.signer.sign()
 
         # Comprimir Factura

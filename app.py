@@ -1,33 +1,13 @@
 import logging
-import asyncio
 from fastapi import FastAPI, Request
-from contextlib import asynccontextmanager
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from interfaces.api import invoice_routes
-from shared import templates_loader
 
 logging.basicConfig(level=logging.INFO)
-_logger = logging.getLogger("fastapi_app")
 
-async def load_templates():
-    templates_loader.load()
-    _logger.info("Plantillas cargadas.")
-
-async def loads():
-    """Ejecuta las cargas en paralelo."""
-    await asyncio.gather(load_templates())
-    _logger.info("Todas las tareas de carga completadas.")
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    _logger.info("Iniciando carga de archivos en segundo plano...")
-    # Ejecutar cargas en segundo plano sin bloquear
-    asyncio.create_task(loads())
-    yield
-
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):

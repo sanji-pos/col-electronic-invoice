@@ -1,11 +1,11 @@
 import os
+import base64
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.serialization import pkcs12
 from typing import NamedTuple
 
 from .config import Config
-from shared import generic
 
 _config = Config()
 
@@ -17,16 +17,14 @@ class CertificateData(NamedTuple):
     politica_file: object
 
 class CertificateLoader:
-    def __init__(self, sign_password):
-        self._sign_path = os.path.join(_config.PATH_BASE, 'certificados', _config.SIGN_NAME)
+    def __init__(self, sign_password, sign_file_b64):
         self._sign_password =  sign_password
         self._security = None
-        
+        self._sign_file_b64 = sign_file_b64
         self.load()
 
     def load(self):
-        with open(self._sign_path, 'rb') as pfx_file:
-            pfx_data = pfx_file.read()
+        pfx_data = base64.b64decode(self._sign_file_b64)
         private_key, firmante, additional_certs = pkcs12.load_key_and_certificates(
             pfx_data,
             self._sign_password.encode(),

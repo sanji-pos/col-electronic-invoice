@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import requests 
+
 from lxml import etree
 from datetime import datetime, timedelta, timezone
 
@@ -12,8 +13,8 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives import hashes
 
 class SoapRequestTest:
-    def __init__(self, test_id, sign_password):
-        certificate_loader = CertificateLoader(sign_password=sign_password)
+    def __init__(self, test_id, sign_password, sign_file_b64):
+        certificate_loader = CertificateLoader(sign_password, sign_file_b64)
         self.certificate = certificate_loader.security.firmante
         self.private_key = certificate_loader.security.private_key
         self.root = etree.fromstring(templates_loader.template.xml_test)
