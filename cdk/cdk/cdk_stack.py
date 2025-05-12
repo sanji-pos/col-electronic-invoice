@@ -62,7 +62,8 @@ class ColElectronicInvoiceStack(Stack):
                 f"path/2015-03-31/functions/{authorizer_arn}/invocations"
             ),
             authorizer_payload_format_version="2.0",
-            authorizer_result_ttl_in_seconds=3600
+            authorizer_result_ttl_in_seconds=3600,
+            enable_simple_responses=True
         )
 
         def add_route(path: str, method: str, fn: PythonFunction, id_prefix: str):
