@@ -13,7 +13,7 @@ router = APIRouter(
 def create(request: InvoiceDto):
     try:
         electronicCertificate = dbClient["electronic-certificates"].find_one({
-            "_id": ObjectId("680cfd20d3ea52c9c07dd24f")
+            "_id": ObjectId(request.ElectronicCertificateId)
         })
         create_invoice = CreateInvoiceCase(request, electronicCertificate["certificatePassword"], electronicCertificate["certificateBase64"])
         return create_invoice.send()
@@ -24,7 +24,7 @@ def create(request: InvoiceDto):
 def create(request: InvoiceDto):
     try:
         electronicCertificate = dbClient["electronic-certificates"].find_one({
-            "_id": ObjectId("680cfd20d3ea52c9c07dd24f")
+            "_id": ObjectId(request.ElectronicCertificateId)
         })
         create_invoice = CreateInvoiceCase(request, electronicCertificate["certificatePassword"], electronicCertificate["certificateBase64"])
         return create_invoice.send_test()
@@ -35,7 +35,7 @@ def create(request: InvoiceDto):
 def create(request: CreditNoteDto):
     try:
         electronicCertificate = dbClient["electronic-certificates"].find_one({
-            "_id": ObjectId("680cfd20d3ea52c9c07dd24f")
+            "_id": ObjectId(request.ElectronicCertificateId)
         })
         create_note = CreateNoteCase(request, electronicCertificate["certificatePassword"], electronicCertificate["certificateBase64"])
         return create_note.start()

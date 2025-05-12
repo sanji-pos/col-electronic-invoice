@@ -100,3 +100,4 @@ class InvoiceDto(BaseModel):
     Lines: List[InvoiceLineDto]
     Company: CompanyDto
     Customer: CustomerDto
+    ElectronicCertificateId: str
