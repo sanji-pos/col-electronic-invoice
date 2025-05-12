@@ -6,11 +6,11 @@ from aws_cdk.aws_lambda_python_alpha import PythonFunction
 
 from constructs import Construct
 
-class CdkStack(Stack):
+class ColElectronicInvoiceStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
-        createInvoiceLambda = PythonFunction(
+        PythonFunction(
             self,
             "createInvoiceLambda",
             entry="./lambda/create_invoice",
@@ -18,7 +18,7 @@ class CdkStack(Stack):
             index="index.py",
             handler="handle"
         )
-        sendTestLambda = PythonFunction(
+        PythonFunction(
             self,
             "sendTestLambda",
             entry="./lambda/send_test",
