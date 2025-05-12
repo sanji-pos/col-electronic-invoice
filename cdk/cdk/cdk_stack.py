@@ -2,7 +2,8 @@ from aws_cdk import (
     Stack,
     Fn,
     aws_iam as iam,
-    aws_logs
+    aws_logs,
+    RemovalPolicy
 )
 from aws_cdk.aws_apigatewayv2 import CfnIntegration, CfnRoute, CfnAuthorizer
 from aws_cdk.aws_lambda_python_alpha import PythonFunction
@@ -25,7 +26,7 @@ class ColElectronicInvoiceStack(Stack):
             self, "CreateInvoiceLogGroup",
             log_group_name=f"/aws/lambda/{create_invoice_fn.function_name}",
             retention=aws_logs.RetentionDays.ONE_WEEK,
-            removal_policy=aws_logs.RemovalPolicy.DESTROY
+            removal_policy=RemovalPolicy.DESTROY
         )
 
 
@@ -41,7 +42,7 @@ class ColElectronicInvoiceStack(Stack):
             self, "SendTestLogGroup",
             log_group_name=f"/aws/lambda/{send_test_fn.function_name}",
             retention=aws_logs.RetentionDays.ONE_WEEK,
-            removal_policy=aws_logs.RemovalPolicy.DESTROY
+            removal_policy=RemovalPolicy.DESTROY
         )
 
         api_id = Fn.import_value("sls-sanji-pos-server-prod-HttpApiId")
