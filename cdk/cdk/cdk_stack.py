@@ -31,16 +31,11 @@ class ColElectronicInvoiceStack(Stack):
         )
 
         # 2. Import the existing API URL & extract its API ID
-        api_url = Fn.import_value("HttpApiUrl")
-        # e.g. https://abc123.execute-api.us-east-1.amazonaws.com
-        api_id = Fn.select(
-            2,
-            Fn.split("/", Fn.select(2, Fn.split("://", api_url)))
-        )
+        api_id = Fn.import_value("sls-sanji-pos-server-prod-HttpApiId")
 
         # 3. Import the Lambda-authorizer ARN
         authorizer_arn = Fn.import_value(
-            "ValidateGatewayTokenAuthorizerLambdaFunctionQualifiedArn"
+            "sls-sanji-pos-server-prod-ValidateGatewayTokenAuthorizerLambdaFunctionQualifiedArn"
         )
 
         # 4. Define a CfnAuthorizer
