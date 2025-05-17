@@ -3,12 +3,14 @@ from aws_cdk import (
     Fn,
     aws_iam as iam,
     aws_logs,
-    RemovalPolicy
+    RemovalPolicy,
 )
 from aws_cdk.aws_apigatewayv2 import CfnIntegration, CfnRoute, CfnAuthorizer
 from aws_cdk.aws_lambda_python_alpha import PythonFunction
+from aws_cdk.aws_lambda import Runtime
 from constructs import Construct
 from aws_cdk.aws_logs import CfnLogGroup
+import os
 
 class ColElectronicInvoiceStack(Stack):
 
@@ -17,8 +19,8 @@ class ColElectronicInvoiceStack(Stack):
 
         create_invoice_fn = PythonFunction(
             self, "CreateInvoiceLambda",
-            entry="./lambda/create_invoice",
-            runtime=__import__("aws_cdk.aws_lambda").aws_lambda.Runtime.PYTHON_3_10,
+            entry="../lambda/create_invoice",
+            runtime=Runtime.PYTHON_3_10,
             index="index.py",
             handler="handle",
         )
@@ -29,12 +31,10 @@ class ColElectronicInvoiceStack(Stack):
             retention_in_days=7
         )
 
-
-
         send_test_fn = PythonFunction(
             self, "SendTestLambda",
-            entry="./lambda/send_test",
-            runtime=__import__("aws_cdk.aws_lambda").aws_lambda.Runtime.PYTHON_3_10,
+            entry="../lambda/send_test",
+            runtime=Runtime.PYTHON_3_10,
             index="index.py",
             handler="handle"
         )
@@ -45,11 +45,9 @@ class ColElectronicInvoiceStack(Stack):
             retention_in_days=7
         )
 
-        api_id = Fn.import_value("sls-sanji-pos-server-prod-HttpApiId")
+        api_id = os.environ['API_ID']
 
-        authorizer_arn = Fn.import_value(
-            "sls-sanji-pos-server-prod-ValidateGatewayTokenAuthorizerLambdaFunctionQualifiedArn"
-        )
+        authorizer_arn = os.environ['AUTHORIZER_ARN']
 
         authorizer = CfnAuthorizer(
             self, "TokenAuthorizer",

@@ -34,3 +34,6 @@ jobs:
           find lambda -type f -name "requirements.txt" -exec pip install -r {} \;
           sudo npm install -g aws-cdk
           cdk deploy --require-approval never
+        env:
+          API_ID: ${{ secrets.API_ID }}
+          AUTHORIZER_ARN: ${{ secrets.AUTHORIZER_ARN }}
