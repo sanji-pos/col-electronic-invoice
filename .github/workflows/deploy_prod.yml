@@ -27,12 +27,19 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+      - name: Install aws-cdk
+        run: |
+          sudo npm install -g aws-cdk
       - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      - name: Install lambda dependencies
+        run: |
+          find lambda -type f -name "requirements.txt" -exec pip install -r {} \;
+      - name: Install cdk dependencies
         run: |
           cd cdk
           pip install -r requirements.txt
-          find lambda -type f -name "requirements.txt" -exec pip install -r {} \;
-          sudo npm install -g aws-cdk
           cdk deploy --require-approval never
         env:
           API_ID: ${{ secrets.API_ID }}
